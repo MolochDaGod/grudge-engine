@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics + Particles — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; touch-action:none; outline:none; }
+    #back { position:fixed; top:14px; right:16px; color:#6b7399; font-size:.75rem; text-decoration:none; z-index:10; }
+    #back:hover { color:#c8a84b; }
+    #hint { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); color:#6b7399; font-size:.62rem; pointer-events:none; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas" tabindex="0"></canvas>
+  <a id="back" href="/../../../">← Gallery</a>
+  <div id="hint">WASD / arrows → move camera · Scroll → zoom · Click buttons → physics events</div>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

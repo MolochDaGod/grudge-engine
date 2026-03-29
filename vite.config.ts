@@ -51,7 +51,8 @@ export default defineConfig({
         // Characters
         'corsair-king':     resolve(__dirname, 'examples/65-characters/corsair-king/index.html'),
         // Games
-        'rpg-scene':       resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
+        'physics-particles': resolve(__dirname, 'examples/90-games/physics-particles/index.html'),
+        'rpg-scene':         resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
         'fps-arena':       resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
         'mortar-command':  resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
         'boat-scene':      resolve(__dirname, 'examples/90-games/boat-scene/index.html'),
