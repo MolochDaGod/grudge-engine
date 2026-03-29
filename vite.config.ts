@@ -42,8 +42,14 @@ export default defineConfig({
         'webgpu':           resolve(__dirname, 'examples/10-effects/webgpu/index.html'),
         'post-processing':  resolve(__dirname, 'examples/10-effects/post-processing/index.html'),
         'water-sky':        resolve(__dirname, 'examples/10-effects/water-sky/index.html'),
+        'candle-webgpu':    resolve(__dirname, 'examples/10-effects/candle-webgpu/index.html'),
+        'mipmap-lod':       resolve(__dirname, 'examples/10-effects/mipmap-lod/index.html'),
+        // Particles
+        'particle-playground': resolve(__dirname, 'examples/20-particles/playground/index.html'),
         // Models
         'weapon-viewer':    resolve(__dirname, 'examples/55-models/weapon-viewer/index.html'),
+        // Characters
+        'corsair-king':     resolve(__dirname, 'examples/65-characters/corsair-king/index.html'),
         // Games
         'rpg-scene':       resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
         'fps-arena':       resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),

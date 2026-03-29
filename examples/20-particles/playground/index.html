@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Playground — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root {
+      --bg:      #0a0b0f;
+      --surface: #12141a;
+      --border:  #1e2330;
+      --accent:  #c8a84b;
+      --green:   #4bffa5;
+      --text:    #d4d8e8;
+      --muted:   #6b7399;
+      --font:    'Courier New', monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); overflow:hidden; }
+    #grudge-canvas { position:fixed; inset:0; display:block; width:100vw; height:100vh; }
+
+    /* ── Side panel ─────────────────────────────────────────────────────── */
+    #panel {
+      position:fixed; top:0; right:0; bottom:0; width:300px;
+      background:rgba(10,11,15,.93); border-left:1px solid var(--border);
+      display:flex; flex-direction:column; z-index:10; overflow:hidden;
+    }
+    #panel-header {
+      padding:12px 14px 10px; border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    #panel-header h1 { font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+    #panel-scroll { flex:1; overflow-y:auto; padding:10px 12px; }
+    #panel-scroll::-webkit-scrollbar { width:4px; }
+    #panel-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+    /* ── Sections ────────────────────────────────────────────────────────── */
+    .section { margin-bottom:16px; }
+    .section-title {
+      font-size:.6rem; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--accent); padding-bottom:5px; border-bottom:1px solid var(--border); margin-bottom:8px;
+    }
+
+    /* ── System stack list ───────────────────────────────────────────────── */
+    .sys-item {
+      display:flex; align-items:center; gap:6px;
+      padding:5px 8px; margin-bottom:4px;
+      background:var(--surface); border:1px solid var(--border); border-radius:4px;
+      cursor:pointer; font-size:.65rem;
+    }
+    .sys-item.active { border-color:var(--accent); color:var(--accent); }
+    .sys-item .sys-name { flex:1; }
+    .sys-item .sys-del  { color:var(--muted); cursor:pointer; font-size:.75rem; }
+    .sys-item .sys-del:hover { color:#ff6b6b; }
+    .sys-item .sys-vis  { cursor:pointer; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    .btn-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px; }
+    .btn {
+      flex:1; min-width:60px; padding:5px 8px;
+      background:transparent; border:1px solid var(--border); color:var(--muted);
+      font-family:var(--font); font-size:.6rem; cursor:pointer; border-radius:3px;
+      text-align:center; text-transform:uppercase; letter-spacing:.06em;
+    }
+    .btn:hover  { border-color:var(--accent); color:var(--accent); }
+    .btn.active { border-color:var(--green);  color:var(--green); }
+    .btn.danger:hover { border-color:#ff6b6b; color:#ff6b6b; }
+
+    /* ── Sliders ─────────────────────────────────────────────────────────── */
+    .slider-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .slider-label { width:110px; font-size:.62rem; color:var(--muted); flex-shrink:0; }
+    .slider-row input[type=range] {
+      flex:1; accent-color:var(--accent); height:3px;
+      background:var(--border); border-radius:2px;
+    }
+    .slider-val { width:34px; font-size:.6rem; color:var(--accent); text-align:right; }
+
+    /* ── Color pickers ───────────────────────────────────────────────────── */
+    .color-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .color-row label { font-size:.62rem; color:var(--muted); flex:1; }
+    .color-row input[type=color] { width:36px; height:22px; border:1px solid var(--border); border-radius:3px; cursor:pointer; background:none; }
+
+    /* ── Select ──────────────────────────────────────────────────────────── */
+    .select-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .select-row label { font-size:.62rem; color:var(--muted); flex:1; }
+    .select-row select {
+      background:var(--surface); border:1px solid var(--border); color:var(--text);
+      font-family:var(--font); font-size:.6rem; padding:3px 6px; border-radius:3px; flex:1;
+    }
+
+    /* ── Preset grid ─────────────────────────────────────────────────────── */
+    .preset-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:6px; }
+    .preset-btn {
+      padding:5px 0; font-size:.58rem; text-align:center;
+      background:var(--surface); border:1px solid var(--border); color:var(--muted);
+      font-family:var(--font); cursor:pointer; border-radius:3px;
+      text-transform:uppercase; letter-spacing:.04em;
+    }
+    .preset-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ── Back / info ─────────────────────────────────────────────────────── */
+    #back { position:fixed; top:14px; left:16px; color:var(--muted); font-size:.75rem; text-decoration:none; z-index:20; }
+    #back:hover { color:var(--accent); }
+    #stack-count { position:fixed; top:14px; left:100px; color:var(--muted); font-size:.65rem; pointer-events:none; }
+
+    /* ── Loading ─────────────────────────────────────────────────────────── */
+    #loading-overlay {
+      position:fixed; inset:0; background:rgba(4,5,10,.97);
+      display:flex; align-items:center; justify-content:center; z-index:200; transition:opacity .5s;
+    }
+    #loading-overlay.hidden { opacity:0; pointer-events:none; }
+    #loading-overlay span { color:var(--accent); font-size:.8rem; letter-spacing:.1em; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+
+  <div id="loading-overlay"><span>Initializing particles…</span></div>
+
+  <!-- ── Side Panel ─────────────────────────────────────────────────── -->
+  <div id="panel">
+    <div id="panel-header">
+      <h1>Particle Playground</h1>
+      <span style="color:var(--muted);font-size:.6rem;" id="fps-counter">0 fps</span>
+    </div>
+
+    <div id="panel-scroll">
+
+      <!-- Stack -->
+      <div class="section">
+        <div class="section-title">Stack</div>
+        <div id="sys-list"></div>
+        <div class="btn-row" style="margin-top:6px">
+          <button class="btn" id="btn-add">+ Add Layer</button>
+          <button class="btn danger" id="btn-clear">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="section">
+        <div class="section-title">Presets</div>
+        <div class="preset-grid" id="preset-grid">
+          <button class="preset-btn" data-preset="fire">Fire</button>
+          <button class="preset-btn" data-preset="smoke">Smoke</button>
+          <button class="preset-btn" data-preset="sparks">Sparks</button>
+          <button class="preset-btn" data-preset="galaxy">Galaxy</button>
+          <button class="preset-btn" data-preset="snow">Snow</button>
+          <button class="preset-btn" data-preset="magic">Magic</button>
+          <button class="preset-btn" data-preset="explosion">Burst</button>
+          <button class="preset-btn" data-preset="rain">Rain</button>
+          <button class="preset-btn" data-preset="vortex">Vortex</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btn-node-mat">Node Material</button>
+          <button class="btn" id="btn-load-json">Load JSON</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btn-gpu">GPU Particles</button>
+        </div>
+      </div>
+
+      <!-- Active system controls -->
+      <div class="section" id="controls-section">
+        <div class="section-title">Active Layer Controls</div>
+        <div id="no-selection" style="color:var(--muted);font-size:.62rem;">No layer selected</div>
+        <div id="layer-controls" style="display:none">
+
+          <div class="slider-row">
+            <span class="slider-label">Emit Rate</span>
+            <input type="range" id="s-emitrate" min="0" max="2000" step="10" value="200">
+            <span class="slider-val" id="v-emitrate">200</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Min Size</span>
+            <input type="range" id="s-minsize" min="0.01" max="3" step="0.01" value="0.1">
+            <span class="slider-val" id="v-minsize">0.10</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Max Size</span>
+            <input type="range" id="s-maxsize" min="0.01" max="5" step="0.01" value="1">
+            <span class="slider-val" id="v-maxsize">1.00</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Min Lifetime</span>
+            <input type="range" id="s-minlife" min="0.1" max="10" step="0.1" value="0.5">
+            <span class="slider-val" id="v-minlife">0.5</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Max Lifetime</span>
+            <input type="range" id="s-maxlife" min="0.1" max="10" step="0.1" value="5">
+            <span class="slider-val" id="v-maxlife">5.0</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Min Power</span>
+            <input type="range" id="s-minpower" min="0" max="10" step="0.1" value="0.5">
+            <span class="slider-val" id="v-minpower">0.5</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Max Power</span>
+            <input type="range" id="s-maxpower" min="0" max="10" step="0.1" value="3">
+            <span class="slider-val" id="v-maxpower">3.0</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Gravity Y</span>
+            <input type="range" id="s-gravity" min="-20" max="20" step="0.5" value="-1">
+            <span class="slider-val" id="v-gravity">-1.0</span>
+          </div>
+          <div class="slider-row">
+            <span class="slider-label">Opacity</span>
+            <input type="range" id="s-opacity" min="0" max="1" step="0.01" value="1">
+            <span class="slider-val" id="v-opacity">1.0</span>
+          </div>
+
+          <div class="color-row">
+            <label>Color 1</label>
+            <input type="color" id="c-color1" value="#ffff00">
+          </div>
+          <div class="color-row">
+            <label>Color 2</label>
+            <input type="color" id="c-color2" value="#ff8800">
+          </div>
+          <div class="color-row">
+            <label>Dead Color</label>
+            <input type="color" id="c-colordead" value="#220000">
+          </div>
+
+          <div class="select-row">
+            <label>Blend Mode</label>
+            <select id="sel-blend">
+              <option value="0">Standard</option>
+              <option value="1" selected>Add</option>
+              <option value="2">Multiply</option>
+              <option value="3">OneOne</option>
+            </select>
+          </div>
+
+          <div class="select-row">
+            <label>Emitter Shape</label>
+            <select id="sel-emitter">
+              <option value="box">Box</option>
+              <option value="sphere">Sphere</option>
+              <option value="cone">Cone</option>
+              <option value="point">Point</option>
+            </select>
+          </div>
+
+          <div class="btn-row" style="margin-top:6px">
+            <button class="btn active" id="btn-toggle">Pause</button>
+            <button class="btn" id="btn-burst">Burst!</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-scroll -->
+  </div>
+
+  <a id="back" href="/../../../">← Gallery</a>
+  <div id="stack-count"></div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
