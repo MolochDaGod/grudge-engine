@@ -1,0 +1,25 @@
+{
+  "name": "grudge-engine",
+  "version": "0.1.0",
+  "description": "Grudge Engine — Babylon.js game component library powered by Grudge Studio",
+  "author": "Racalvin The Pirate King",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^9.0.0",
+    "@babylonjs/gui": "^9.0.0",
+    "@babylonjs/loaders": "^9.0.0",
+    "@babylonjs/materials": "^9.0.0",
+    "@babylonjs/serializers": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3"
+  }
+}

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grudge Engine — Babylon.js Game Components</title>
+  <style>
+    :root {
+      --grudge-bg:      #0a0b0f;
+      --grudge-surface: #12141a;
+      --grudge-border:  #1e2330;
+      --grudge-accent:  #c8a84b;
+      --grudge-green:   #4bffa5;
+      --grudge-text:    #d4d8e8;
+      --grudge-muted:   #6b7399;
+      --font-main: 'Courier New', Courier, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--grudge-bg);
+      color: var(--grudge-text);
+      font-family: var(--font-main);
+      padding: 0 40px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    a { color: var(--grudge-accent); text-decoration: none; }
+    a:hover { color: var(--grudge-green); }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 0 16px;
+      border-bottom: 1px solid var(--grudge-border);
+      margin-bottom: 32px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-mark {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: linear-gradient(135deg, #c8a84b, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 900; color: #000;
+    }
+    .logo-text { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.06em; }
+    .logo-sub  { font-size: 0.7rem; color: var(--grudge-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    nav a { margin-left: 20px; font-size: 0.85rem; color: var(--grudge-muted); }
+    nav a:hover { color: var(--grudge-accent); }
+    h2 {
+      font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--grudge-accent); margin: 36px 0 14px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--grudge-border);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--grudge-surface);
+      border: 1px solid var(--grudge-border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .card:hover {
+      border-color: var(--grudge-accent);
+      transform: translateY(-2px);
+    }
+    .card a { display: block; }
+    .card img {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover;
+      background: #0d0f14;
+      display: block;
+    }
+    .card-body { padding: 10px 12px 12px; }
+    .card-title { font-size: 0.82rem; font-weight: 700; color: var(--grudge-text); margin-bottom: 3px; }
+    .card-tag   { font-size: 0.68rem; color: var(--grudge-muted); }
+    .badge {
+      display: inline-block; font-size: 0.6rem; padding: 2px 6px;
+      border-radius: 3px; background: var(--grudge-accent);
+      color: #000; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    footer {
+      margin-top: 60px; padding-top: 20px;
+      border-top: 1px solid var(--grudge-border);
+      font-size: 0.72rem; color: var(--grudge-muted);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">G</div>
+      <div>
+        <div class="logo-text">Grudge Engine</div>
+        <div class="logo-sub">Babylon.js · Grudge Studio</div>
+      </div>
+    </div>
+    <nav>
+      <a href="https://github.com/MolochDaGod/grudge-engine" target="_blank">GitHub</a>
+      <a href="https://grudge-studio.com" target="_blank">Grudge Studio</a>
+      <a href="https://api.grudge-studio.com" target="_blank">API</a>
+    </nav>
+  </header>
+
+  <p style="color:var(--grudge-muted);font-size:.85rem;margin-bottom:4px;">
+    A reusable Babylon.js game component library — powered by Grudge Studio infrastructure.
+    Every demo loads assets from Grudge object storage. Characters and player data connect to the Grudge backend.
+  </p>
+
+  <!-- ═══════════ GAMES ═══════════ -->
+  <h2>Games</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/80-scenes/third-person/">
+        <img src="public/thumbs/third-person.jpg" alt="Third-person RPG" onerror="this.style.display='none'">
+        <div class="card-body">
+          <div class="badge">New</div>
+          <div class="card-title">Third-person RPG</div>
+          <div class="card-tag">WASD · camera · Grudge character</div>
+        </div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/80-scenes/fps-arena/">
+        <img src="public/thumbs/fps-arena.jpg" alt="FPS Arena" onerror="this.style.display='none'">
+        <div class="card-body">
+          <div class="card-title">FPS Arena</div>
+          <div class="card-tag">pointer lock · shooting · AI enemies</div>
+        </div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/80-scenes/rpg-scene/">
+        <img src="public/thumbs/rpg-scene.jpg" alt="Kill the Orcs" onerror="this.style.display='none'">
+        <div class="card-body">
+          <div class="card-title">Kill the Orcs (RPG)</div>
+          <div class="card-tag">combat · AI · fantasy</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════ PLAYER / CAMERA ═══════════ -->
+  <h2>Player &amp; Camera</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/30-player/third-person/">
+        <div class="card-body">
+          <div class="card-title">Third-person camera</div>
+          <div class="card-tag">follow camera · WASD · over-shoulder</div>
+        </div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/30-player/first-person/">
+        <div class="card-body">
+          <div class="card-title">First-person camera</div>
+          <div class="card-tag">pointer lock · FPS movement</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════ AI ═══════════ -->
+  <h2>AI Behaviors</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/70-ai/patrol/">
+        <div class="card-body"><div class="card-title">Patrol</div><div class="card-tag">waypoint loop</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/70-ai/follow/">
+        <div class="card-body"><div class="card-title">Follow</div><div class="card-tag">target tracking</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/70-ai/wander/">
+        <div class="card-body"><div class="card-title">Wander</div><div class="card-tag">random movement</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/70-ai/pursue/">
+        <div class="card-body"><div class="card-title">Pursue</div><div class="card-tag">prediction · intercept</div></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════ TERRAIN ═══════════ -->
+  <h2>Terrain</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/45-terrain/heightmap/">
+        <div class="card-body"><div class="card-title">Heightmap</div><div class="card-tag">texture-driven terrain</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/45-terrain/procedural/">
+        <div class="card-body"><div class="card-title">Procedural</div><div class="card-tag">noise-based generation</div></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════ PARTICLES ═══════════ -->
+  <h2>Particles &amp; Effects</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/20-particles/fire/">
+        <div class="card-body"><div class="card-title">Fire</div><div class="card-tag">particle system</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/20-particles/rain/">
+        <div class="card-body"><div class="card-title">Rain</div><div class="card-tag">weather particles</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/20-particles/smoke/">
+        <div class="card-body"><div class="card-title">Smoke</div><div class="card-tag">volumetric smoke</div></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════ CHARACTERS ═══════════ -->
+  <h2>Characters</h2>
+  <div class="grid">
+    <div class="card">
+      <a href="examples/65-characters/warrior/">
+        <div class="card-body"><div class="card-title">Warrior</div><div class="card-tag">melee · Grudge class</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/65-characters/mage/">
+        <div class="card-body"><div class="card-title">Mage</div><div class="card-tag">spells · Grudge class</div></div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="examples/65-characters/ranger/">
+        <div class="card-body"><div class="card-title">Ranger</div><div class="card-tag">ranged · Grudge class</div></div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    <span>Grudge Engine — by <a href="https://grudge-studio.com">Racalvin The Pirate King</a></span>
+    <span>Babylon.js · Vite · TypeScript · Grudge Studio</span>
+  </footer>
+
+</body>
+</html>

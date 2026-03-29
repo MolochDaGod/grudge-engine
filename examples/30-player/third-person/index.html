@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Third-Person Camera — Grudge Engine</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+    #hud {
+      position:fixed; top:16px; left:50%; transform:translateX(-50%);
+      color:#c8a84b; font-family:'Courier New',monospace; font-size:.75rem;
+      text-align:center; pointer-events:none; text-shadow:0 1px 4px #000;
+    }
+    #back {
+      position:fixed; top:14px; left:16px;
+      color:#6b7399; font-family:'Courier New',monospace; font-size:.75rem;
+      text-decoration:none;
+    }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+  <div id="hud">WASD — Move &nbsp;|&nbsp; Mouse — Camera &nbsp;|&nbsp; Space — Jump &nbsp;|&nbsp; Shift — Run</div>
+  <a id="back" href="../../../">← Gallery</a>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
