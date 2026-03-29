@@ -45,9 +45,10 @@ export default defineConfig({
         // Models
         'weapon-viewer':    resolve(__dirname, 'examples/55-models/weapon-viewer/index.html'),
         // Games
-        'rpg-scene':     resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
-        'fps-arena':     resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
-        'mortar-command': resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
+        'rpg-scene':       resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
+        'fps-arena':       resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
+        'mortar-command':  resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
+        'boat-scene':      resolve(__dirname, 'examples/90-games/boat-scene/index.html'),
       },
       output: {
         manualChunks(id) {
@@ -68,7 +69,13 @@ export default defineConfig({
       '@babylonjs/materials',
       '@babylonjs/post-processes',
       '@babylonjs/procedural-textures',
+      '@babylonjs/inspector',
+      'howler',
+      'zustand',
+      'bitecs',
+      'socket.io-client',
+      'spectorjs',
     ],
-    exclude: ['recast-navigation'],
+    exclude: ['recast-navigation', 'babel-traverse'],
   },
 })
