@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5/css/xterm.css">
+  <style>
+    :root {
+      --bg: #0a0b0f; --surface: #12141a; --border: #1e2330;
+      --accent: #c8a84b; --green: #4bffa5; --text: #d4d8e8; --muted: #6b7399;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px; background: var(--surface);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { width: 24px; height: 24px; border-radius: 4px; }
+    .logo-text { font-size: .8rem; font-weight: 700; color: var(--accent); }
+    .title { font-size: .75rem; color: var(--muted); }
+    nav a { color: var(--muted); text-decoration: none; font-size: .75rem; margin-left: 14px; }
+    nav a:hover { color: var(--accent); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; display: inline-block; margin-right: 4px; }
+    .status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    #terminal-container { flex: 1; padding: 8px; overflow: hidden; }
+    #terminal-container .xterm { height: 100%; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="/favicon.png" alt="G">
+      <span class="logo-text">Grudge Engine</span>
+      <span class="title">/ Terminal</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="status"><span class="status-dot" id="dot"></span><span id="status-text" style="font-size:.7rem;color:var(--muted)">Connecting...</span></span>
+      <nav>
+        <a href="/">Gallery</a>
+        <a href="/editor">Editor</a>
+      </nav>
+    </div>
+  </header>
+  <div id="terminal-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/socket.io/client-dist/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10/lib/addon-fit.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@6/lib/addon-web-links.js"></script>
+  <script>
+    const term = new Terminal({
+      theme: {
+        background: '#0a0b0f', foreground: '#d4d8e8',
+        cursor: '#c8a84b', cursorAccent: '#0a0b0f',
+        black: '#0a0b0f', brightBlack: '#3a3f55',
+        red: '#ff5555', brightRed: '#ff7777',
+        green: '#4bffa5', brightGreen: '#6affc0',
+        yellow: '#c8a84b', brightYellow: '#f0c060',
+        blue: '#5c8dff', brightBlue: '#7aaeff',
+        magenta: '#c084fc', brightMagenta: '#d8a4ff',
+        cyan: '#22d3ee', brightCyan: '#67e8f9',
+        white: '#d4d8e8', brightWhite: '#ffffff',
+      },
+      fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", "Courier New", monospace',
+      fontSize: 14,
+      lineHeight: 1.25,
+      cursorBlink: true,
+      cursorStyle: 'block',
+      scrollback: 5000,
+      allowProposedApi: true,
+    })
+
+    const fitAddon     = new FitAddon.FitAddon()
+    const webLinksAddon= new WebLinksAddon.WebLinksAddon()
+    term.loadAddon(fitAddon)
+    term.loadAddon(webLinksAddon)
+    term.open(document.getElementById('terminal-container'))
+    fitAddon.fit()
+
+    window.addEventListener('resize', () => fitAddon.fit())
+
+    // Connect to server PTY namespace
+    const origin = window.location.origin
+    const socket = io(origin + '/terminal', { transports: ['websocket'] })
+
+    const dot  = document.getElementById('dot')
+    const stxt = document.getElementById('status-text')
+
+    socket.on('connect', () => {
+      dot.classList.add('connected')
+      stxt.textContent = 'Connected'
+      stxt.style.color = 'var(--green)'
+      term.write('\x1b[32m[Grudge Terminal — connected]\x1b[0m\r\n')
+    })
+
+    socket.on('disconnect', () => {
+      dot.classList.remove('connected')
+      stxt.textContent = 'Disconnected'
+      stxt.style.color = 'var(--muted)'
+      term.write('\r\n\x1b[31m[Disconnected from server]\x1b[0m\r\n')
+    })
+
+    socket.on('data', data => term.write(data))
+
+    term.onData(data => socket.emit('data', data))
+
+    term.onResize(({ cols, rows }) => socket.emit('resize', { cols, rows }))
+
+    // Send initial resize
+    setTimeout(() => {
+      fitAddon.fit()
+      socket.emit('resize', { cols: term.cols, rows: term.rows })
+    }, 200)
+  </script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene Editor — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root {
+      --bg: #0a0b0f; --surface: #12141a; --surface2: #0d0f15;
+      --border: #1e2330; --accent: #c8a84b; --green: #4bffa5;
+      --text: #d4d8e8; --muted: #6b7399; --red: #ff5555;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; overflow: hidden; }
+
+    /* ── Layout ── */
+    header {
+      height: 40px; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 14px; gap: 12px; flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 7px; }
+    .logo img { width: 22px; height: 22px; border-radius: 4px; }
+    .logo-text { font-size: .8rem; font-weight: 700; color: var(--accent); }
+    .sep { color: var(--border); }
+    #file-label { font-size: .72rem; color: var(--muted); flex: 1; }
+    .btn {
+      padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); font-size: .7rem;
+      cursor: pointer; font-family: inherit; transition: border-color .15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+    .btn.primary:hover { background: #dbb84e; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .72rem; margin-left: 10px; }
+    nav a:hover { color: var(--accent); }
+
+    .workspace { display: flex; height: calc(100vh - 40px); }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 200px; background: var(--surface2); border-right: 1px solid var(--border);
+      overflow-y: auto; flex-shrink: 0;
+    }
+    .sidebar-section { padding: 8px 10px 4px; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .file-item {
+      padding: 5px 12px; font-size: .72rem; cursor: pointer; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      border-left: 2px solid transparent;
+    }
+    .file-item:hover { background: var(--surface); border-left-color: var(--accent); }
+    .file-item.active { border-left-color: var(--accent); color: var(--accent); background: var(--surface); }
+    .file-item.dir { color: var(--muted); font-weight: 600; }
+
+    /* ── Center: Monaco ── */
+    #editor-pane { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    #monaco-container { flex: 1; }
+
+    /* ── Right: Canvas preview ── */
+    #preview-pane {
+      width: 420px; flex-shrink: 0; border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; background: var(--surface2);
+    }
+    #preview-header {
+      height: 32px; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: .7rem;
+    }
+    #preview-frame { flex: 1; border: none; background: #000; }
+
+    /* ── Status bar ── */
+    #statusbar {
+      height: 22px; background: var(--accent); display: flex; align-items: center;
+      padding: 0 12px; font-size: .62rem; color: #000; font-weight: 700; gap: 14px;
+    }
+    #save-indicator { margin-left: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="/favicon.png" alt="G">
+      <span class="logo-text">Grudge Engine</span>
+    </div>
+    <span class="sep">/</span>
+    <span id="file-label">Select a scene to edit</span>
+    <button class="btn" id="btn-save" onclick="saveFile()">Save</button>
+    <button class="btn primary" id="btn-build" onclick="triggerBuild()">▶ Build</button>
+    <button class="btn" onclick="location.href='/terminal'" title="Open Terminal">⌨ Terminal</button>
+    <nav>
+      <a href="/">Gallery</a>
+      <a href="/terminal">Terminal</a>
+    </nav>
+  </header>
+
+  <div class="workspace">
+    <!-- Sidebar: file tree -->
+    <div id="sidebar">
+      <div class="sidebar-section">Scenes</div>
+      <div id="scene-list"><div class="file-item" style="color:var(--muted);font-size:.68rem;">Loading...</div></div>
+      <div class="sidebar-section" style="margin-top:8px;">Core</div>
+      <div id="core-list"></div>
+    </div>
+
+    <!-- Monaco editor -->
+    <div id="editor-pane">
+      <div id="monaco-container"></div>
+    </div>
+
+    <!-- Babylon preview -->
+    <div id="preview-pane">
+      <div id="preview-header">
+        <span style="color:var(--accent);font-weight:700;">▣</span>
+        <span>Preview</span>
+        <button class="btn" style="margin-left:auto;padding:2px 8px;font-size:.65rem;" onclick="refreshPreview()">↺ Refresh</button>
+        <button class="btn" id="btn-fullscreen" style="padding:2px 8px;font-size:.65rem;" onclick="openFullscreen()">⛶</button>
+      </div>
+      <iframe id="preview-frame" src="/"></iframe>
+    </div>
+  </div>
+
+  <div id="statusbar">
+    <span>🛡 Grudge Engine Editor</span>
+    <span id="cursor-pos">Ln 1, Col 1</span>
+    <span id="lang-label">TypeScript</span>
+    <span id="save-indicator"></span>
+  </div>
+
+  <!-- Monaco Editor via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47/min/vs/loader.js"></script>
+  <script>
+    let editor, currentPath = null, isDirty = false
+
+    // ── Monaco setup ──────────────────────────────────────────
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47/min/vs' } })
+    require(['vs/editor/editor.main'], () => {
+      editor = monaco.editor.create(document.getElementById('monaco-container'), {
+        value: '// Select a scene file from the left panel to start editing.\n',
+        language: 'typescript',
+        theme: 'vs-dark',
+        fontSize: 14,
+        fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", monospace',
+        fontLigatures: true,
+        minimap: { enabled: true },
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        tabSize: 2,
+        lineNumbers: 'on',
+        renderLineHighlight: 'all',
+        bracketPairColorization: { enabled: true },
+        wordWrap: 'off',
+      })
+
+      editor.onDidChangeCursorPosition(e => {
+        document.getElementById('cursor-pos').textContent =
+          `Ln ${e.position.lineNumber}, Col ${e.position.column}`
+      })
+
+      editor.onDidChangeModelContent(() => {
+        if (!isDirty) {
+          isDirty = true
+          document.getElementById('save-indicator').textContent = '● Unsaved'
+        }
+      })
+
+      // Ctrl+S to save
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, saveFile)
+
+      loadSceneList()
+    })
+
+    // ── File tree ─────────────────────────────────────────────
+    async function loadSceneList() {
+      const res = await fetch('/api/scenes').then(r => r.json()).catch(() => ({ scenes: [] }))
+      const list = document.getElementById('scene-list')
+      list.innerHTML = ''
+      res.scenes.forEach(s => {
+        const el = document.createElement('div')
+        el.className = 'file-item'
+        el.title = s.dir
+        el.textContent = '  ' + s.dir.split('/').pop()
+        el.onclick = () => loadFile(`examples/${s.dir}/main.ts`)
+        list.appendChild(el)
+      })
+
+      // Core files
+      const core = document.getElementById('core-list')
+      ;['GrudgeEngine','Actor','StateMachine','InputManager','constants'].forEach(name => {
+        const el = document.createElement('div')
+        el.className = 'file-item'
+        el.textContent = '  ' + name + '.ts'
+        el.onclick = () => loadFile(`src/core/${name}.ts`)
+        core.appendChild(el)
+      })
+    }
+
+    // ── Load file into editor ─────────────────────────────────
+    async function loadFile(path) {
+      const res = await fetch(`/api/files/${encodeURIComponent(path)}`).then(r => r.json()).catch(() => null)
+      if (!res || !res.content) return
+
+      currentPath = path
+      document.getElementById('file-label').textContent = path
+      const lang = path.endsWith('.ts') ? 'typescript' : path.endsWith('.js') ? 'javascript' : 'html'
+      document.getElementById('lang-label').textContent = lang === 'typescript' ? 'TypeScript' : lang
+      monaco.editor.setModelLanguage(editor.getModel(), lang)
+      editor.setValue(res.content)
+      isDirty = false
+      document.getElementById('save-indicator').textContent = ''
+
+      // Update active item
+      document.querySelectorAll('.file-item').forEach(el => el.classList.remove('active'))
+      event?.target?.classList.add('active')
+
+      // Preview the scene in the iframe
+      const sceneDir = path.replace('/main.ts','').replace('examples/','')
+      document.getElementById('preview-frame').src = `/examples/${sceneDir}/`
+    }
+
+    // ── Save file ─────────────────────────────────────────────
+    async function saveFile() {
+      if (!currentPath || !editor) return
+      const content = editor.getValue()
+      const res = await fetch(`/api/files/${encodeURIComponent(currentPath)}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      }).then(r => r.json()).catch(() => ({ ok: false }))
+
+      if (res.ok) {
+        isDirty = false
+        document.getElementById('save-indicator').textContent = '✓ Saved'
+        setTimeout(() => { document.getElementById('save-indicator').textContent = '' }, 2000)
+      } else {
+        document.getElementById('save-indicator').textContent = '✗ Save failed'
+      }
+    }
+
+    // ── Trigger build via terminal ────────────────────────────
+    function triggerBuild() {
+      window.open('/terminal', '_blank')
+    }
+
+    function refreshPreview() {
+      const frame = document.getElementById('preview-frame')
+      frame.src = frame.src
+    }
+
+    function openFullscreen() {
+      window.open(document.getElementById('preview-frame').src, '_blank')
+    }
+  </script>
+</body>
+</html>

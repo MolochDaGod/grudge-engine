@@ -1,3 +1,4 @@
+import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
 import { Engine }       from '@babylonjs/core/Engines/engine'
 import { Scene }        from '@babylonjs/core/scene'
 import { Color4 }       from '@babylonjs/core/Maths/math.color'
