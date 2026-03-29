@@ -16,10 +16,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        // Example scenes — each gets its own entry point
         'third-person': resolve(__dirname, 'examples/30-player/third-person/index.html'),
-        'rpg-scene':    resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
-        'fps-arena':    resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
       },
       output: {
         manualChunks(id) {
