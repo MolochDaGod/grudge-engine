@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mortar Command — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+
+    /* ── Control Panel ─────────────────────────────────────── */
+    #control-panel {
+      position:fixed; top:0; left:0;
+      background:rgba(10,11,15,0.88);
+      border-right:1px solid #1e2330;
+      padding:16px 12px;
+      display:flex; flex-direction:column; gap:10px;
+      z-index:10; min-width:160px;
+    }
+    .score-label { font-size:.6rem; color:#6b7399; text-transform:uppercase; letter-spacing:.12em; }
+    .score-value { font-size:1.2rem; font-weight:700; color:#c8a84b; }
+
+    /* heavy mortar progress bar */
+    #package-bar {
+      height:10px; background:#1e2330; border-radius:4px; overflow:hidden; margin-top:2px;
+    }
+    #innerbar { height:100%; width:0%; background:linear-gradient(90deg,#4bffa5,#c8a84b); transition:width .3s; }
+    .bar-label { font-size:.58rem; color:#6b7399; display:flex; justify-content:space-between; align-items:center; }
+    #package-loaded { width:16px; height:16px; vertical-align:middle; }
+
+    /* ── Loading overlay ───────────────────────────────────── */
+    #loading-overlay {
+      position:fixed; inset:0;
+      background:rgba(5,6,10,0.96);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:100;
+    }
+    #loading-overlay h1 { font-size:2.4rem; color:#c8a84b; letter-spacing:.18em; text-transform:uppercase; }
+    #loading-overlay p  { color:#6b7399; font-size:.8rem; margin-top:8px; }
+    #loading-span { color:#4bffa5; font-size:1rem; margin-top:16px; }
+    #start {
+      display:none; margin-top:28px;
+      padding:12px 36px; font-family:'Courier New',monospace;
+      font-size:.9rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+      background:transparent; border:2px solid #c8a84b; color:#c8a84b;
+      cursor:pointer; border-radius:6px; transition:background .2s;
+    }
+    #start:hover { background:#c8a84b; color:#000; }
+    #loading-text { color:#6b7399; font-size:.75rem; }
+
+    /* ── Controls hint ─────────────────────────────────────── */
+    #controls-hint {
+      position:fixed; bottom:16px; right:16px;
+      color:#6b7399; font-size:.65rem; text-align:right; line-height:1.7;
+      pointer-events:none;
+    }
+
+    /* ── Back link ─────────────────────────────────────────── */
+    #back {
+      position:fixed; top:14px; right:16px;
+      color:#6b7399; font-size:.75rem; text-decoration:none; z-index:20;
+    }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+
+  <!-- Control Panel -->
+  <div id="control-panel">
+    <div>
+      <div class="score-label">Score</div>
+      <div class="score-value" id="score-display">0</div>
+    </div>
+    <div>
+      <div class="score-label">Hi-Score</div>
+      <div class="score-value" id="hi-score-display">0</div>
+    </div>
+    <div>
+      <div class="score-label">Level</div>
+      <div class="score-value" id="level-display">—</div>
+    </div>
+    <div>
+      <div class="bar-label">
+        <span>Heavy Mortar</span>
+        <img id="package-loaded" src="https://assets.grudge-studio.com/game-assets/mortar-command/textures/mortar_unlit.png" alt="">
+      </div>
+      <div id="package-bar"><div id="innerbar"></div></div>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <h1>Mortar Command</h1>
+    <p>Babylon.js · Grudge Engine Port</p>
+    <div id="loading-span">Initializing…</div>
+    <div id="loading-text" style="margin-top:12px">Loading assets…</div>
+    <button id="start">▶ Insert Coin</button>
+  </div>
+
+  <!-- Controls hint -->
+  <div id="controls-hint">
+    Click terrain → aim · Q/Z/M → mortar · Space → heavy mortar<br>
+    Mouse drag → rotate camera · Scroll → zoom
+  </div>
+
+  <a id="back" href="/../../../">← Gallery</a>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

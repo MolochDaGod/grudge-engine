@@ -41,6 +41,7 @@ export default defineConfig({
         // Games
         'rpg-scene':     resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
         'fps-arena':     resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
+        'mortar-command': resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
       },
       output: {
         manualChunks(id) {
