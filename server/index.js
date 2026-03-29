@@ -89,7 +89,7 @@ app.get('/api/scenes', (_req, res) => {
 })
 
 // ── API: read source file for editor ─────────────────────────
-app.get('/api/files/*', (req, res) => {
+app.get(/^\/api\/files\/(.+)$/, (req, res) => {
   // Allow reading from examples/ and src/
   const filePath = decodeURIComponent(req.params[0])
   const safePath = path.resolve(ROOT, filePath)
@@ -113,7 +113,7 @@ app.get('/api/files/*', (req, res) => {
 })
 
 // ── API: write source file from editor ───────────────────────
-app.put('/api/files/*', (req, res) => {
+app.put(/^\/api\/files\/(.+)$/, (req, res) => {
   const filePath = decodeURIComponent(req.params[0])
   const safePath = path.resolve(ROOT, filePath)
   if (!safePath.startsWith(ROOT)) return res.status(403).json({ error: 'Forbidden' })
@@ -127,7 +127,7 @@ app.put('/api/files/*', (req, res) => {
 })
 
 // ── SPA fallback: serve dist index for all unmatched routes ───
-app.get('*', (_req, res) => {
+app.use((_req, res) => {
   const indexPath = path.join(DIST, 'index.html')
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath)

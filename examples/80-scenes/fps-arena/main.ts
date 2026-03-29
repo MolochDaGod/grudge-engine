@@ -5,7 +5,7 @@ import { ShadowGenerator }   from '@babylonjs/core/Lights/Shadows/shadowGenerato
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
 import { MeshBuilder }       from '@babylonjs/core/Meshes/meshBuilder'
 import { StandardMaterial }  from '@babylonjs/core/Materials/standardMaterial'
-import { Ray }               from '@babylonjs/core/Culling/ray'
+import '@babylonjs/core/Culling/ray'
 import { Color3 }            from '@babylonjs/core/Maths/math.color'
 import { Vector3 }           from '@babylonjs/core/Maths/math.vector'
 import { GrudgeEngine }      from '../../../src/core/GrudgeEngine'
@@ -79,8 +79,7 @@ let shootCd = 0
 document.addEventListener('click', () => {
   if (!document.pointerLockElement || shootCd > 0) return
   shootCd = 0.3
-  const ray = scene.createPickingRay(grudge.canvas.width / 2, grudge.canvas.height / 2, null, cam)
-  const hit = scene.pickWithRay(ray)
+  const hit = scene.pick(grudge.engine.getRenderWidth() / 2, grudge.engine.getRenderHeight() / 2)
   if (hit?.pickedMesh) {
     const target = enemies.find(e => !e.dead && e.mesh === hit.pickedMesh)
     if (target) {

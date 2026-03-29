@@ -31,7 +31,8 @@ const ground = MeshBuilder.CreateGround('g', { width: 50, height: 50 }, scene)
 ground.material = gm; ground.receiveShadows = true
 
 // Ruins / obstacles
-[[0,0,10],[8,0,-5],[-9,0,-3],[4,0,6],[-5,0,8]].forEach(([x,,z], i) => {
+const ruinPts: [number, number][] = [[0,10],[8,-5],[-9,-3],[4,6],[-5,8]]
+ruinPts.forEach(([x, z], i) => {
   const h = 1 + (i % 3)
   const b = MeshBuilder.CreateBox(`r${i}`, { width: 1.5 + (i%2), height: h, depth: 1.5 }, scene)
   b.position.set(x, h/2, z)

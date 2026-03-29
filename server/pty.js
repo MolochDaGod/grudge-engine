@@ -5,24 +5,14 @@
  */
 
 import os from 'os'
+import pty from 'node-pty'
 
 export function setupPty(io) {
-  // Lazy-load node-pty — only used when a terminal client connects
-  let pty
-  try {
-    pty = (await import('node-pty')).default
-  } catch {
-    console.warn('[pty] node-pty not available — terminal sockets disabled')
-  }
 
   const shell = os.platform() === 'win32' ? 'powershell.exe' : (process.env.SHELL || 'bash')
   const shellArgs = os.platform() === 'win32' ? [] : []
 
   io.of('/terminal').on('connection', (socket) => {
-    if (!pty) {
-      socket.emit('data', '\r\n\x1b[31m[Error] node-pty not installed. Run: npm install node-pty\x1b[0m\r\n')
-      return
-    }
 
     console.log(`[terminal] client connected: ${socket.id}`)
 
