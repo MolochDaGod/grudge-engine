@@ -40,4 +40,28 @@ export const Assets = {
 
   /** Environment / terrain models */
   env: (name: string) => assetUrl(`models/environment/${name}.glb`),
+
+  /** Particle / VFX textures — maps to /effects/<name> */
+  effect: (name: string) => assetUrl(`effects/${name}`),
+
+  /** 2-D sprite sheets or atlas images — maps to /sprites/<name> */
+  sprite: (name: string) => assetUrl(`sprites/${name}`),
+
+  /**
+   * Raw key lookup — returns the full URL for an arbitrary storage key.
+   * Useful when the caller already has the exact object-storage path.
+   */
+  raw: (key: string) => assetUrl(key),
+
+  /**
+   * Split a full model URL into the { rootUrl, sceneFilename } pair expected
+   * by Babylon.js SceneLoader.ImportMeshAsync.
+   */
+  splitGlb(url: string): { rootUrl: string; sceneFilename: string } {
+    const slash = url.lastIndexOf('/')
+    return {
+      rootUrl:       url.slice(0, slash + 1),
+      sceneFilename: url.slice(slash + 1),
+    }
+  },
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Storage Starter — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; touch-action:none; }
+
+    /* HUD */
+    #hud {
+      position:fixed; top:16px; left:50%; transform:translateX(-50%);
+      color:#c8a84b; font-family:'Courier New',monospace; font-size:.75rem;
+      text-align:center; pointer-events:none; text-shadow:0 1px 6px #000;
+      max-width:90vw;
+    }
+
+    /* Asset status panel */
+    #asset-log {
+      position:fixed; bottom:16px; left:16px;
+      color:#4bffa5; font-family:'Courier New',monospace; font-size:.68rem;
+      line-height:1.55; pointer-events:none; text-shadow:0 1px 4px #000;
+    }
+    #asset-log .ok  { color:#4bffa5; }
+    #asset-log .err { color:#ff6b6b; }
+    #asset-log .pending { color:#6b7399; }
+
+    /* Back link */
+    #back {
+      position:fixed; top:14px; left:16px;
+      color:#6b7399; font-family:'Courier New',monospace; font-size:.75rem;
+      text-decoration:none;
+    }
+    #back:hover { color:#c8a84b; }
+
+    /* Scene title */
+    #title-tag {
+      position:fixed; bottom:16px; right:16px;
+      color:#6b7399; font-family:'Courier New',monospace; font-size:.7rem;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+  <div id="hud">Object Storage Starter</div>
+  <div id="asset-log"></div>
+  <a id="back" href="/../../../">← Gallery</a>
+  <div id="title-tag">Grudge Engine · Object Storage Baseline</div>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

@@ -68,6 +68,24 @@ const url = Assets.voxelChar('warrior') // → assets.grudge-studio.com/models/v
 const user = await GrudgeAuth.init()
 ```
 
+## Babylon Baseline
+
+`src/core/starter.ts` mirrors Babylon's official getting-started scene so new examples start from a known-good baseline before adding Grudge systems.
+
+```ts
+import { GrudgeEngine, createBabylonStarterScene } from './src/core'
+
+const grudge = GrudgeEngine.create({ canvasId: 'grudge-canvas' })
+const { scene, camera, light, sphere, ground } = createBabylonStarterScene(grudge)
+
+grudge.start()
+```
+
+Use this for:
+- quick scene bring-up
+- validating Babylon upgrades
+- creating minimal repros before adding physics/navmesh/AI
+
 ---
 
 Made with ❤️ by **Racalvin The Pirate King** — [Grudge Studio](https://grudge-studio.com)

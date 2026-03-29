@@ -17,6 +17,8 @@ export default defineConfig({
       input: {
         // Gallery
         main: resolve(__dirname, 'index.html'),
+        // Baseline
+        'object-storage-starter': resolve(__dirname, 'examples/00-baseline/object-storage-starter/index.html'),
         // Player
         'third-person':  resolve(__dirname, 'examples/30-player/third-person/index.html'),
         'first-person':  resolve(__dirname, 'examples/30-player/first-person/index.html'),
