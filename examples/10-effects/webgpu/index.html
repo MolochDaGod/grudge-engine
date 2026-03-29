@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGPU Engine — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+    #hud { position:fixed; top:16px; left:50%; transform:translateX(-50%); color:#c8a84b; font-family:'Courier New',monospace; font-size:.75rem; text-align:center; pointer-events:none; }
+    #badge { position:fixed; top:16px; right:60px; background:#4bffa5; color:#000; font-family:'Courier New',monospace; font-size:.65rem; font-weight:700; padding:3px 8px; border-radius:4px; letter-spacing:.1em; }
+    #back { position:fixed; top:14px; left:16px; color:#6b7399; font-family:'Courier New',monospace; font-size:.75rem; text-decoration:none; }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+  <div id="hud">WebGPU Demo — PBR + GPU Particles + Glow</div>
+  <div id="badge">WebGPU</div>
+  <a id="back" href="/../../../">← Gallery</a>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

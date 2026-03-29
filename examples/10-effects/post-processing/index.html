@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post-Processing — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+    #controls { position:fixed; top:16px; left:50%; transform:translateX(-50%); display:flex; gap:8px; }
+    .toggle { background:rgba(10,11,15,.85); border:1px solid #1e2330; color:#6b7399;
+      font-family:'Courier New',monospace; font-size:.65rem; padding:5px 12px; cursor:pointer; border-radius:4px; }
+    .toggle.on { border-color:#c8a84b; color:#c8a84b; }
+    #back { position:fixed; top:14px; left:16px; color:#6b7399; font-size:.75rem; text-decoration:none; }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+  <div id="controls">
+    <button class="toggle on"  id="btn-ssao">SSAO</button>
+    <button class="toggle on"  id="btn-bloom">Bloom</button>
+    <button class="toggle on"  id="btn-fxaa">FXAA</button>
+    <button class="toggle on"  id="btn-grain">Film Grain</button>
+  </div>
+  <a id="back" href="/../../../">← Gallery</a>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

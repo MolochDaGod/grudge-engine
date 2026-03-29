@@ -73,6 +73,7 @@ for (const { rel, full } of files) {
     `${BUCKET}/${key}`,
     `--file="${full}"`,
     `--content-type="${mime}"`,
+    '--remote',
   ].join(' ')
 
   try {

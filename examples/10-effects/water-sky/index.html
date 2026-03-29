@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water &amp; Sky — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+    #hud { position:fixed; bottom:16px; right:16px; color:#6b7399; font-family:'Courier New',monospace; font-size:.68rem; }
+    #back { position:fixed; top:14px; left:16px; color:#6b7399; font-family:'Courier New',monospace; font-size:.75rem; text-decoration:none; }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+  <div id="hud">Water Material · Sky Material · Procedural Textures</div>
+  <a id="back" href="/../../../">← Gallery</a>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

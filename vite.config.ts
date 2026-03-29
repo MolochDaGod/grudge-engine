@@ -38,6 +38,12 @@ export default defineConfig({
         'warrior':       resolve(__dirname, 'examples/65-characters/warrior/index.html'),
         'mage':          resolve(__dirname, 'examples/65-characters/mage/index.html'),
         'ranger':        resolve(__dirname, 'examples/65-characters/ranger/index.html'),
+        // Effects / WebGPU
+        'webgpu':           resolve(__dirname, 'examples/10-effects/webgpu/index.html'),
+        'post-processing':  resolve(__dirname, 'examples/10-effects/post-processing/index.html'),
+        'water-sky':        resolve(__dirname, 'examples/10-effects/water-sky/index.html'),
+        // Models
+        'weapon-viewer':    resolve(__dirname, 'examples/55-models/weapon-viewer/index.html'),
         // Games
         'rpg-scene':     resolve(__dirname, 'examples/80-scenes/rpg-scene/index.html'),
         'fps-arena':     resolve(__dirname, 'examples/80-scenes/fps-arena/index.html'),
@@ -55,7 +61,14 @@ export default defineConfig({
     open: true,
   },
   optimizeDeps: {
-    include: ['@babylonjs/core', '@babylonjs/loaders', '@babylonjs/gui', '@babylonjs/materials'],
+    include: [
+      '@babylonjs/core',
+      '@babylonjs/loaders',
+      '@babylonjs/gui',
+      '@babylonjs/materials',
+      '@babylonjs/post-processes',
+      '@babylonjs/procedural-textures',
+    ],
     exclude: ['recast-navigation'],
   },
 })
