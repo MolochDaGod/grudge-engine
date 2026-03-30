@@ -44,6 +44,15 @@ export const Assets = {
   /** Particle / VFX textures — maps to /effects/<name> */
   effect: (name: string) => assetUrl(`effects/${name}`),
 
+  /** Race character base meshes — maps to /models/races/<name>.glb */
+  race: (name: string) => assetUrl(`models/races/${name}.glb`),
+
+  /** Equipment GLBs — maps to /models/races/equipment/<name>.glb */
+  equipment: (name: string) => assetUrl(`models/races/equipment/${name}.glb`),
+
+  /** Animation GLBs — maps to /models/races/animations/<name>.glb */
+  animation: (name: string) => assetUrl(`models/races/animations/${name}.glb`),
+
   /** 2-D sprite sheets or atlas images — maps to /sprites/<name> */
   sprite: (name: string) => assetUrl(`sprites/${name}`),
 

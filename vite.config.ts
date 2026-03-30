@@ -67,6 +67,7 @@ export default defineConfig({
         'physics-particles': resolve(__dirname, 'examples/90-games/physics-particles/index.html'),
         'mortar-command':  resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
         'ragdoll-physics': resolve(__dirname, 'examples/90-games/ragdoll-physics/index.html'),
+        'fps-arena-grudge': resolve(__dirname, 'examples/90-games/fps-arena-grudge/index.html'),
         'boat-scene':      resolve(__dirname, 'examples/90-games/boat-scene/index.html'),
       },
       output: {

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPS Arena — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; cursor:crosshair; }
+
+    /* ── Race select overlay ─────────────────────────────── */
+    #race-select {
+      position:fixed; inset:0;
+      background:rgba(5,6,10,0.96);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:100; transition: opacity 0.5s;
+    }
+    #race-select.hidden { opacity:0; pointer-events:none; }
+    #race-select h1 { font-size:2rem; color:#c8a84b; letter-spacing:.18em; text-transform:uppercase; margin-bottom:8px; }
+    #race-select p  { color:#6b7399; font-size:.8rem; margin-bottom:24px; }
+    .race-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:480px;
+    }
+    .race-btn {
+      padding:14px 20px; font-family:inherit; font-size:.85rem; font-weight:700;
+      letter-spacing:.08em; text-transform:uppercase;
+      background:#1e2330; border:2px solid #1e2330; color:#d4d8e8;
+      border-radius:6px; cursor:pointer; transition:all .2s;
+    }
+    .race-btn:hover { border-color:#c8a84b; color:#c8a84b; }
+
+    /* ── HUD ──────────────────────────────────────────────── */
+    #hud {
+      position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+      color:#6b7399; font-size:.65rem; text-align:center; line-height:1.7;
+      pointer-events:none;
+    }
+    #hp-bar {
+      position:fixed; top:16px; left:16px;
+      width:200px; height:12px; background:#1e2330; border-radius:4px; overflow:hidden;
+    }
+    #hp-fill { height:100%; width:100%; background:linear-gradient(90deg,#4bffa5,#22cc77); transition:width .3s; }
+    #race-label {
+      position:fixed; top:34px; left:16px;
+      color:#c8a84b; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    }
+    #anim-label {
+      position:fixed; top:16px; right:16px;
+      color:#6b7399; font-size:.7rem; text-align:right;
+    }
+
+    /* ── Back link ────────────────────────────────────────── */
+    #back {
+      position:fixed; bottom:14px; right:16px;
+      color:#6b7399; font-size:.75rem; text-decoration:none; z-index:20;
+    }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+
+  <!-- Race Selection -->
+  <div id="race-select">
+    <h1>FPS Arena</h1>
+    <p>Babylon.js · Havok · 6 Races · Grudge Engine</p>
+    <div class="race-grid">
+      <button class="race-btn" data-race="barbarian">Barbarian</button>
+      <button class="race-btn" data-race="dwarf">Dwarf</button>
+      <button class="race-btn" data-race="elf">Elf</button>
+      <button class="race-btn" data-race="human">Human</button>
+      <button class="race-btn" data-race="orc">Orc</button>
+      <button class="race-btn" data-race="undead">Undead</button>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hp-bar"><div id="hp-fill"></div></div>
+  <div id="race-label"></div>
+  <div id="anim-label"></div>
+  <div id="hud">
+    WASD — Move · Mouse — Look · Click — Attack · R — Reload · Space — Jump<br>
+    1-5 — Animations · B — Battlecry · Tab — Dance
+  </div>
+
+  <a id="back" href="/../../../">← Gallery</a>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

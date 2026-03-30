@@ -55,6 +55,7 @@
     "@types/howler": "^2.2.12",
     "@types/socket.io-client": "^1.4.36",
     "concurrently": "^9.2.1",
+    "fbx2gltf": "^0.9.7-p1",
     "puppeteer": "^24.40.0",
     "sharp": "^0.34.5",
     "typescript": "^6.0.2",
