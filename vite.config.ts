@@ -35,11 +35,8 @@ export default defineConfig({
         'wander':        resolve(__dirname, 'examples/70-ai/wander/index.html'),
         'pursue':        resolve(__dirname, 'examples/70-ai/pursue/index.html'),
         // Characters
-        'warrior':       resolve(__dirname, 'examples/65-characters/warrior/index.html'),
-        'mage':          resolve(__dirname, 'examples/65-characters/mage/index.html'),
-        'ranger':        resolve(__dirname, 'examples/65-characters/ranger/index.html'),
-        // Effects / WebGPU
-        'webgpu':           resolve(__dirname, 'examples/10-effects/webgpu/index.html'),
+        'character-editor': resolve(__dirname, 'examples/65-characters/character-editor/index.html'),
+        'corsair-king':     resolve(__dirname, 'examples/65-characters/corsair-king/index.html'),
         'post-processing':  resolve(__dirname, 'examples/10-effects/post-processing/index.html'),
         'water-sky':        resolve(__dirname, 'examples/10-effects/water-sky/index.html'),
         'candle-webgpu':    resolve(__dirname, 'examples/10-effects/candle-webgpu/index.html'),
