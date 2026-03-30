@@ -65,8 +65,9 @@ export default defineConfig({
 
         // Games
         'physics-particles': resolve(__dirname, 'examples/90-games/physics-particles/index.html'),
-        'mortar-command':    resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
-        'boat-scene':        resolve(__dirname, 'examples/90-games/boat-scene/index.html'),
+        'mortar-command':  resolve(__dirname, 'examples/90-games/mortar-command/index.html'),
+        'ragdoll-physics': resolve(__dirname, 'examples/90-games/ragdoll-physics/index.html'),
+        'boat-scene':      resolve(__dirname, 'examples/90-games/boat-scene/index.html'),
       },
       output: {
         manualChunks(id) {
