@@ -10,6 +10,7 @@
 
 import '@babylonjs/loaders'
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
+import { normBoneName, autoNormalizeCharacter } from '../../../src/core/character'
 
 import { Engine }            from '@babylonjs/core/Engines/engine'
 import { Scene }             from '@babylonjs/core/scene'
@@ -78,14 +79,17 @@ const pip = new DefaultRenderingPipeline('pip', true, scene, [camera])
 pip.fxaaEnabled = true
 pip.bloomEnabled = true; pip.bloomThreshold = 0.5; pip.bloomWeight = 0.3
 
-// ── Retarget helper ───────────────────────────────────────────────────────
+// ── Retarget helper ────────────────────────────────────────────────────────
 function retarget(source: AnimationGroup, target: Skeleton, name: string): AnimationGroup {
   const g = new AnimationGroup(name, scene)
   for (const ta of source.targetedAnimations) {
-    const bone = (ta.target as any)
+    const bone  = (ta.target as any)
     const bname = bone?.name ?? bone?.id
     if (!bname) continue
-    const tb = target.bones.find(b => b.name === bname)
+    // Normalised match: strips Mixamo prefix + punctuation so any naming
+    // convention works (e.g. "mixamorig:Hips" matches "Hips" or "hips")
+    const srcNorm = normBoneName(bname)
+    const tb = target.bones.find(b => normBoneName(b.name) === srcNorm)
     if (tb) g.addTargetedAnimation(ta.animation, tb)
   }
   return g
@@ -142,8 +146,10 @@ async function load() {
   skeleton   = charResult.skeletons[0] ?? null
   const root = charMeshes[0]
 
-  // Scale and centre
-  root.scaling   = new Vector3(0.025, 0.025, 0.025)
+  // Scale and centre — auto-normalize handles Mixamo FBX cm-scale;
+  // the hardcoded 0.025 fallback is only used if the character is
+  // already in a reasonable range (which it won't be for a raw FBX).
+  autoNormalizeCharacter(root)
   root.position  = new Vector3(0, 0, 0)
 
   // Shadows

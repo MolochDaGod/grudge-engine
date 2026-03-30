@@ -40,8 +40,9 @@ import { Bone }             from '@babylonjs/core/Bones/bone'
 import { GlowLayer }        from '@babylonjs/core/Layers/glowLayer'
 import { DefaultRenderingPipeline } from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/defaultRenderingPipeline'
 import { SSAO2RenderingPipeline }   from '@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssao2RenderingPipeline'
+import { normBoneName, autoNormalizeCharacter, retargetAnimationGroup } from '../../../src/core/character'
 
-// ── R2 base URLs ────────────────────────────────────────────────────────────
+// ── R2 base URLs ───────────────────────────────────────────────────────────────────
 const R2_CHARS   = 'https://assets.grudge-studio.com/models/characters/rts'
 const R2_ANIMS   = 'https://assets.grudge-studio.com/models/animations'
 const R2_WEAPONS = 'https://assets.grudge-studio.com/models/weapons/kaykit'
@@ -85,47 +86,14 @@ const WEAPONS = [
   { id:'wand_A',   label:'Wand'     },
 ]
 
-// ── Bone name normalizer (KayKit + Mixamo + Generic) ────────────────────────
-function normBone(name: string): string {
-  return name
-    .replace(/^mixamorig:/i, '')
-    .replace(/^mixamorig/i, '')
-    .replace(/[.\-\s_:]/g, '')
-    .toLowerCase()
-}
-
-// Right-hand bone aliases (matches BoneAliases.ts from RTS project)
+// Right-hand bone aliases
 const RH_NORMS = [
   'fist.r','fistr','righthand','hand_r','handr','hand.r','wrist_r','wristr',
   'righthandindex1','handright','r_hand','rhand',
-].map(normBone)
+].map(normBoneName)
 
 function findRightHand(skeleton: Skeleton): Bone | null {
-  return skeleton.bones.find(b => RH_NORMS.includes(normBone(b.name))) ?? null
-}
-
-// ── Animation retargeting ────────────────────────────────────────────────────
-function retargetGroup(
-  source: AnimationGroup,
-  targetSkeleton: Skeleton,
-  name: string,
-  scene: Scene,
-): AnimationGroup | null {
-  const group = new AnimationGroup(name, scene)
-  let mapped = 0
-
-  for (const ta of source.targetedAnimations) {
-    const srcBone  = ta.target as any
-    const srcNorm  = normBone(srcBone?.name ?? srcBone?.id ?? '')
-    if (!srcNorm) continue
-
-    // Match by normalized name
-    const dstBone  = targetSkeleton.bones.find(b => normBone(b.name) === srcNorm)
-    if (dstBone) { group.addTargetedAnimation(ta.animation, dstBone); mapped++ }
-  }
-
-  if (mapped === 0) { group.dispose(); return null }
-  return group
+  return skeleton.bones.find(b => RH_NORMS.includes(normBoneName(b.name))) ?? null
 }
 
 // ── Engine + Scene ───────────────────────────────────────────────────────────
@@ -406,13 +374,19 @@ async function loadCharacter(def: CharDef) {
     camera.setTarget(new Vector3(0, height * 0.5, 0))
     camera.radius = Math.max(3, height * 1.8)
 
+    // Auto-normalize scale (Mixamo FBX GLBs arrive at ~100:1 cm scale)
+    const norm = autoNormalizeCharacter(root)
+    if (norm.adjusted) {
+      console.info(`[character-editor] Scale corrected: raw height ${norm.rawHeight.toFixed(1)} → applied ×${norm.scale.toFixed(4)}`)
+    }
+
     // Retarget UAL1 + UAL2 if loaded
     if (charSkeleton) {
       if (ual1Loaded) {
-        retargetedGroups1 = ual1Groups.map(g => retargetGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
+        retargetedGroups1 = ual1Groups.map(g => retargetAnimationGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
       }
       if (ual2Loaded) {
-        retargetedGroups2 = ual2Groups.map(g => retargetGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
+        retargetedGroups2 = ual2Groups.map(g => retargetAnimationGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
       }
     }
 
@@ -465,12 +439,12 @@ async function switchTab(pack: string) {
   if (pack === 'ual2') await ensureUAL2()
 
   // Retarget if skeleton is ready but groups not yet built
-  if (charSkeleton) {
+    if (charSkeleton) {
     if (pack === 'ual1' && retargetedGroups1.length === 0) {
-      retargetedGroups1 = ual1Groups.map(g => retargetGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
+      retargetedGroups1 = ual1Groups.map(g => retargetAnimationGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
     }
     if (pack === 'ual2' && retargetedGroups2.length === 0) {
-      retargetedGroups2 = ual2Groups.map(g => retargetGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
+      retargetedGroups2 = ual2Groups.map(g => retargetAnimationGroup(g, charSkeleton!, g.name + '_retargeted', scene)).filter(Boolean) as AnimationGroup[]
     }
     updateStats()
   }
