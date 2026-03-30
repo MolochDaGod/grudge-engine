@@ -52,6 +52,7 @@
     "@types/socket.io-client": "^1.4.36",
     "concurrently": "^9.2.1",
     "puppeteer": "^24.40.0",
+    "sharp": "^0.34.5",
     "typescript": "^6.0.2",
     "vite": "^8.0.3"
   }
