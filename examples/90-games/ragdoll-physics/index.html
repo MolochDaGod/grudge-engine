@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ragdoll Physics — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; font-family:'Courier New',monospace; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; }
+
+    /* ── Loading overlay ───────────────────────────────────── */
+    #loading-overlay {
+      position:fixed; inset:0;
+      background:rgba(5,6,10,0.96);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:100; transition: opacity 0.5s;
+    }
+    #loading-overlay.hidden { opacity:0; pointer-events:none; }
+    #loading-overlay h1 { font-size:2.4rem; color:#c8a84b; letter-spacing:.18em; text-transform:uppercase; }
+    #loading-overlay p  { color:#6b7399; font-size:.8rem; margin-top:8px; }
+    #loading-status { color:#4bffa5; font-size:1rem; margin-top:16px; }
+
+    /* ── Controls hint ─────────────────────────────────────── */
+    #controls-hint {
+      position:fixed; bottom:16px; right:16px;
+      color:#6b7399; font-size:.65rem; text-align:right; line-height:1.7;
+      pointer-events:none;
+    }
+
+    /* ── Back link ─────────────────────────────────────────── */
+    #back {
+      position:fixed; top:14px; right:16px;
+      color:#6b7399; font-size:.75rem; text-decoration:none; z-index:20;
+    }
+    #back:hover { color:#c8a84b; }
+  </style>
+</head>
+<body>
+  <canvas id="grudge-canvas"></canvas>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <h1>Ragdoll Physics</h1>
+    <p>Babylon.js · Havok · Grudge Engine</p>
+    <div id="loading-status">Initializing Havok…</div>
+  </div>
+
+  <!-- Controls hint -->
+  <div id="controls-hint">
+    "Ragdoll" → activate ragdoll mode · "Impulse" → launch body<br>
+    Mouse drag → rotate camera · Scroll → zoom
+  </div>
+
+  <a id="back" href="/../../../">← Gallery</a>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

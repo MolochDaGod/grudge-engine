@@ -46,7 +46,7 @@ export function loadAssets(scene: MCScene, onAllLoaded: () => void): void {
   // ── Terrain GLTF ─────────────────────────────────────────────────────────
   const terrainTask = mgr.addMeshTask(
     'terrainLoadTask', '',
-    mcAsset('') + '/',
+    mcAsset(''),
     'NTC_Draco.gltf',
   )
   terrainTask.onSuccess = (task: any) => {

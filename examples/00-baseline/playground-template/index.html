@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playground Template — Grudge Engine</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#0a0b0f; overflow:hidden; }
+    #grudge-canvas { display:block; width:100vw; height:100vh; touch-action:none; }
+
+    /* ── Loading overlay ── */
+    #loading-overlay {
+      position:fixed; inset:0; background:#0a0b0f;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:16px; z-index:100; transition:opacity .5s ease;
+    }
+    #loading-overlay.hidden { opacity:0; pointer-events:none; }
+    #loading-title { color:#c8a84b; font-family:'Courier New',monospace; font-size:1.1rem; letter-spacing:.1em; }
+    #loading-bar-wrap { width:240px; height:4px; background:#1e2330; border-radius:2px; overflow:hidden; }
+    #loading-bar { height:100%; background:#c8a84b; width:0%; transition:width .3s ease; }
+    #loading-status { color:#6b7399; font-family:'Courier New',monospace; font-size:.72rem; }
+
+    /* ── Nav ── */
+    #back { position:fixed; top:14px; left:16px; color:#6b7399; font-family:'Courier New',monospace; font-size:.75rem; text-decoration:none; z-index:50; }
+    #back:hover { color:#c8a84b; }
+    #title-tag { position:fixed; bottom:16px; right:16px; color:#6b7399; font-family:'Courier New',monospace; font-size:.7rem; z-index:50; }
+
+    /* ── Optional HUD ── */
+    #hud { position:fixed; top:16px; left:50%; transform:translateX(-50%); color:#c8a84b; font-family:'Courier New',monospace; font-size:.75rem; text-align:center; pointer-events:none; text-shadow:0 1px 4px #000; z-index:50; }
+  </style>
+</head>
+<body>
+
+  <div id="loading-overlay">
+    <div id="loading-title">GRUDGE ENGINE</div>
+    <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+    <div id="loading-status">Initialising…</div>
+  </div>
+
+  <canvas id="grudge-canvas"></canvas>
+  <div id="hud"></div>
+  <a id="back" href="/../../">← Gallery</a>
+  <div id="title-tag">Playground Template</div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>
