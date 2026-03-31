@@ -11,6 +11,7 @@
 import '@babylonjs/loaders'
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
 import { autoNormalizeCharacter, retargetAnimationGroup } from '../../../src/core/character'
+import { GRUDGE_RACE_MODELS, RACE_MODEL_CDN, RACE_IDS, raceLabel, DEFAULT_RACE, type RaceModelEntry } from '../../../src/core/raceModels'
 
 import { Engine }            from '@babylonjs/core/Engines/engine'
 import { Scene }             from '@babylonjs/core/scene'
@@ -33,20 +34,14 @@ import { StackPanel }             from '@babylonjs/gui/2D/controls/stackPanel'
 import { Button }                 from '@babylonjs/gui/2D/controls/button'
 import { Control }                from '@babylonjs/gui/2D/controls/control'
 
-const R2_RTS   = 'https://assets.grudge-studio.com/models/characters/rts'
 const R2_ANIMS = 'https://assets.grudge-studio.com/models/animations'
 
-// Characters available as GLB on R2
-const CHAR_OPTIONS = [
-  { id: 'king',      label: 'King',       file: 'King.glb' },
-  { id: 'knight',    label: 'Knight',     file: 'Knight_Male.glb' },
-  { id: 'pirate',    label: 'Pirate',     file: 'Pirate_Male.glb' },
-  { id: 'viking',    label: 'Viking',     file: 'Viking_Male.glb' },
-  { id: 'barbarian', label: 'Barbarian',  file: 'BarbarianGlad.glb' },
-  { id: 'berserker', label: 'Berserker',  file: 'berserker.glb' },
-  { id: 'wizard',    label: 'Wizard',     file: 'Wizard.glb' },
-  { id: 'ninja',     label: 'Ninja',      file: 'Ninja_Male.glb' },
-  { id: 'goblin',    label: 'Goblin',     file: 'Goblin_Male.glb' },
+// Extra RTS characters (non-race models available on R2 for demo/NPC use)
+const EXTRA_CHAR_OPTIONS = [
+  { id: 'king',   label: 'King',   file: 'King.glb' },
+  { id: 'pirate', label: 'Pirate', file: 'Pirate_Male.glb' },
+  { id: 'ninja',  label: 'Ninja',  file: 'Ninja_Male.glb' },
+  { id: 'goblin', label: 'Goblin', file: 'Goblin_Male.glb' },
 ]
 
 // ── Loading UI ────────────────────────────────────────────────────────────
@@ -176,7 +171,7 @@ async function loadChar(file: string, label: string) {
 
   try {
     const before = scene.animationGroups.length
-    const result = await SceneLoader.ImportMeshAsync('', `${R2_RTS}/`, file, scene)
+    const result = await SceneLoader.ImportMeshAsync('', `${RACE_MODEL_CDN}/`, file, scene)
     charMeshes = result.meshes
     skeleton   = result.skeletons[0] ?? null
     embedded   = scene.animationGroups.slice(before)
@@ -236,8 +231,14 @@ function buildUI() {
     return btn
   }
 
-  // Character selector
-  for (const ch of CHAR_OPTIONS) {
+  // Race character selector (canonical Grudge races)
+  for (const raceId of RACE_IDS) {
+    const entry = GRUDGE_RACE_MODELS[raceId]
+    makeBtn(`⚔ ${entry.label}`, () => loadChar(entry.file, entry.label))
+  }
+
+  // Extra NPC / demo models
+  for (const ch of EXTRA_CHAR_OPTIONS) {
     makeBtn(ch.label, () => loadChar(ch.file, ch.label))
   }
 
@@ -268,5 +269,6 @@ function buildUI() {
 // ── Init ──────────────────────────────────────────────────────────────────
 buildUI()
 setProgress(5, 'Starting…')
-loadChar('King.glb', 'King')
+// Default to Human race model (canonical starting race)
+loadChar(GRUDGE_RACE_MODELS[DEFAULT_RACE].file, raceLabel(DEFAULT_RACE))
 engine.runRenderLoop(() => scene.render())
