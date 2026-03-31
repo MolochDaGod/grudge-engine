@@ -1,16 +1,16 @@
 /**
  * Corsair King — Character Animation Demo
- * Port of the BJS dummy3.babylon skeleton animation playground.
- * Replaces dummy3 with the Corsair King FBX (from Grudge R2),
- * with idle/walk/run/left/right animations and a blend mode.
  *
- * Uses Mixamo-style AnimationGroups loaded from separate FBX files
- * and retargeted to the main character's skeleton.
+ * Loads a GLB character from Grudge R2 RTS set with embedded animations,
+ * plus optional UAL retargeted animations.  BJS GUI overlay for switching
+ * characters and playing/blending animations.
+ *
+ * Uses GLB instead of FBX (Babylon.js has no in-browser FBX loader).
  */
 
 import '@babylonjs/loaders'
 import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
-import { normBoneName, autoNormalizeCharacter } from '../../../src/core/character'
+import { autoNormalizeCharacter, retargetAnimationGroup } from '../../../src/core/character'
 
 import { Engine }            from '@babylonjs/core/Engines/engine'
 import { Scene }             from '@babylonjs/core/scene'
@@ -19,7 +19,9 @@ import { HemisphericLight }  from '@babylonjs/core/Lights/hemisphericLight'
 import { DirectionalLight }  from '@babylonjs/core/Lights/directionalLight'
 import { ShadowGenerator }   from '@babylonjs/core/Lights/Shadows/shadowGenerator'
 import { Vector3 }           from '@babylonjs/core/Maths/math.vector'
-import { Color3 }            from '@babylonjs/core/Maths/math.color'
+import { Color3, Color4 }    from '@babylonjs/core/Maths/math.color'
+import { MeshBuilder }       from '@babylonjs/core/Meshes/meshBuilder'
+import { PBRMaterial }       from '@babylonjs/core/Materials/PBR/pbrMaterial'
 import { SceneLoader }       from '@babylonjs/core/Loading/sceneLoader'
 import { AnimationGroup }    from '@babylonjs/core/Animations/animationGroup'
 import { Skeleton }          from '@babylonjs/core/Bones/skeleton'
@@ -30,9 +32,22 @@ import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture
 import { StackPanel }             from '@babylonjs/gui/2D/controls/stackPanel'
 import { Button }                 from '@babylonjs/gui/2D/controls/button'
 import { Control }                from '@babylonjs/gui/2D/controls/control'
-import { TextBlock }              from '@babylonjs/gui/2D/controls/textBlock'
 
-const R2 = 'https://assets.grudge-studio.com/models/characters/corsair-king'
+const R2_RTS   = 'https://assets.grudge-studio.com/models/characters/rts'
+const R2_ANIMS = 'https://assets.grudge-studio.com/models/animations'
+
+// Characters available as GLB on R2
+const CHAR_OPTIONS = [
+  { id: 'king',      label: 'King',       file: 'King.glb' },
+  { id: 'knight',    label: 'Knight',     file: 'Knight_Male.glb' },
+  { id: 'pirate',    label: 'Pirate',     file: 'Pirate_Male.glb' },
+  { id: 'viking',    label: 'Viking',     file: 'Viking_Male.glb' },
+  { id: 'barbarian', label: 'Barbarian',  file: 'BarbarianGlad.glb' },
+  { id: 'berserker', label: 'Berserker',  file: 'berserker.glb' },
+  { id: 'wizard',    label: 'Wizard',     file: 'Wizard.glb' },
+  { id: 'ninja',     label: 'Ninja',      file: 'Ninja_Male.glb' },
+  { id: 'goblin',    label: 'Goblin',     file: 'Goblin_Male.glb' },
+]
 
 // ── Loading UI ────────────────────────────────────────────────────────────
 const overlay    = document.getElementById('loading-overlay')!
@@ -51,161 +66,168 @@ function hideOverlay() {
 
 // ── Engine ────────────────────────────────────────────────────────────────
 const canvas = document.getElementById('grudge-canvas') as HTMLCanvasElement
-const engine = new Engine(canvas, true, { adaptToDeviceRatio: true })
+const engine = new Engine(canvas, true, { adaptToDeviceRatio: true, stencil: true })
 const scene  = new Scene(engine)
+scene.clearColor = new Color4(0.04, 0.05, 0.08, 1)
 window.addEventListener('resize', () => engine.resize())
 
 // ── Camera ────────────────────────────────────────────────────────────────
 const camera = new ArcRotateCamera('camera', Math.PI / 2, Math.PI / 4, 5, new Vector3(0, 1, 0), scene)
 camera.attachControl(canvas, true)
-camera.lowerRadiusLimit   = 2
-camera.upperRadiusLimit   = 12
+camera.lowerRadiusLimit    = 2
+camera.upperRadiusLimit    = 12
 camera.wheelDeltaPercentage = 0.01
 
 // ── Lights + shadows ─────────────────────────────────────────────────────
-const hemi = new HemisphericLight('light1', new Vector3(0, 1, 0), scene)
-hemi.intensity = 0.6
-hemi.specular  = Color3.Black()
+const hemi = new HemisphericLight('hemi', new Vector3(0, 1, 0), scene)
+hemi.intensity = 0.4; hemi.groundColor = new Color3(0.05, 0.05, 0.08)
 
-const dir = new DirectionalLight('dir01', new Vector3(0, -0.5, -1), scene)
-dir.position = new Vector3(0, 5, 5)
+const dir = new DirectionalLight('dir01', new Vector3(-0.6, -1, -0.5), scene)
+dir.position = new Vector3(4, 8, 4); dir.intensity = 1.5
 
 const shadows = new ShadowGenerator(1024, dir)
-shadows.useBlurExponentialShadowMap = true
-shadows.blurKernel = 32
+shadows.useBlurExponentialShadowMap = true; shadows.blurKernel = 24
 
-// ── Post-processing ───────────────────────────────────────────────────────
+// ── Ground ───────────────────────────────────────────────────────────────
+const ground = MeshBuilder.CreateGround('ground', { width: 6, height: 6 }, scene)
+ground.receiveShadows = true
+const gmat = new PBRMaterial('gmat', scene)
+gmat.albedoColor = new Color3(0.08, 0.09, 0.12)
+gmat.metallic = 0.15; gmat.roughness = 0.9
+ground.material = gmat
+
+// ── Post-processing ──────────────────────────────────────────────────────
 const pip = new DefaultRenderingPipeline('pip', true, scene, [camera])
-pip.fxaaEnabled = true
+pip.fxaaEnabled  = true
 pip.bloomEnabled = true; pip.bloomThreshold = 0.5; pip.bloomWeight = 0.3
+pip.imageProcessingEnabled = true
+pip.imageProcessing.contrast = 1.15; pip.imageProcessing.exposure = 1.1
 
-// ── Retarget helper ────────────────────────────────────────────────────────
-function retarget(source: AnimationGroup, target: Skeleton, name: string): AnimationGroup {
-  const g = new AnimationGroup(name, scene)
-  for (const ta of source.targetedAnimations) {
-    const bone  = (ta.target as any)
-    const bname = bone?.name ?? bone?.id
-    if (!bname) continue
-    // Normalised match: strips Mixamo prefix + punctuation so any naming
-    // convention works (e.g. "mixamorig:Hips" matches "Hips" or "hips")
-    const srcNorm = normBoneName(bname)
-    const tb = target.bones.find(b => normBoneName(b.name) === srcNorm)
-    if (tb) g.addTargetedAnimation(ta.animation, tb)
-  }
-  return g
+// ── Animation state ──────────────────────────────────────────────────────
+let charMeshes:    AbstractMesh[]   = []
+let skeleton:      Skeleton | null  = null
+let embedded:      AnimationGroup[] = []
+let retargeted:    AnimationGroup[] = []
+let current:       AnimationGroup | null = null
+let ualLoaded    = false
+let ualSrcGroups: AnimationGroup[] = []
+let animPanel:     StackPanel | null = null
+
+function play(group: AnimationGroup, loop = true) {
+  current?.stop()
+  current = group
+  group.start(loop)
+  animLabel.textContent = group.name.replace(/_retargeted$/, '')
 }
 
-// ── Animation state ───────────────────────────────────────────────────────
-interface AnimDef { key: string; label: string; file: string }
-const ANIM_DEFS: AnimDef[] = [
-  { key: 'idle',    label: 'Idle',       file: 'idle.fbx'      },
-  { key: 'walk',    label: 'Walk',       file: 'walking.fbx'   },
-  { key: 'run',     label: 'Run',        file: 'running.fbx'   },
-  { key: 'left',    label: 'Left Turn',  file: 'left_turn.fbx' },
-  { key: 'right',   label: 'Right Turn', file: 'right_turn.fbx'},
-]
-
-const anims: Record<string, AnimationGroup> = {}
-let current: AnimationGroup | null = null
-let skeleton: Skeleton | null = null
-let charMeshes: AbstractMesh[] = []
-
-function play(key: string, loop = true) {
-  const g = anims[key]; if (!g) return
-  current?.stop()
-  current = g
-  g.start(loop)
-  animLabel.textContent = ANIM_DEFS.find(d => d.key === key)?.label ?? key
-}
-
-// ── Blend helper (walk + left simultaneously at 0.5 weight each) ──────────
-function playBlend(keyA: string, keyB: string) {
-  current?.stop()
-  const a = anims[keyA], b = anims[keyB]
-  if (!a || !b) { play(keyA); return }
-  current = null
+function playBlend(a: AnimationGroup, b: AnimationGroup) {
+  current?.stop(); current = null
   a.start(true, 0.5); b.start(true, 0.5)
-  if (typeof (a as any).weight !== 'undefined') (a as any).weight = 0.5
-  if (typeof (b as any).weight !== 'undefined') (b as any).weight = 0.5
-  animLabel.textContent = 'Walk + Left Blend'
+  animLabel.textContent = `${a.name} + ${b.name}`
 }
 
-// ── Load everything ───────────────────────────────────────────────────────
-async function load() {
-  setProgress(10, 'Loading character…')
-
-  let charResult: any
+// ── Load UAL animation library ───────────────────────────────────────────
+async function ensureUAL(): Promise<void> {
+  if (ualLoaded) return
+  ualLoaded = true
   try {
-    charResult = await SceneLoader.ImportMeshAsync('', `${R2}/`, 'character.fbx', scene)
+    const before = scene.animationGroups.length
+    const res = await SceneLoader.ImportMeshAsync('', `${R2_ANIMS}/`, 'UAL1_Standard.glb', scene)
+    res.meshes.forEach(m => { m.setEnabled(false); m.isPickable = false })
+    ualSrcGroups = scene.animationGroups.slice(before)
+    ualSrcGroups.forEach(g => g.stop())
+  } catch (e) { console.warn('UAL load failed:', e) }
+}
+
+function refreshAnims() {
+  if (!animPanel) return
+  animPanel.clearControls()
+  const all = [...embedded, ...retargeted]
+  for (const g of all) {
+    const cleanName = g.name.replace(/_retargeted$/, '').replace(/_/g, ' ')
+    const btn = Button.CreateSimpleButton(`anim_${g.name}`, cleanName)
+    btn.paddingTop = '4px'; btn.width = '140px'; btn.height = '30px'
+    btn.color = '#c4c8d8'; btn.background = '#161a24'; btn.cornerRadius = 3; btn.thickness = 1
+    btn.hoverCursor = 'pointer'
+    btn.onPointerEnterObservable.add(() => { btn.background = '#3a4060' })
+    btn.onPointerOutObservable.add(()  => { btn.background = '#161a24' })
+    btn.onPointerDownObservable.add(() => play(g))
+    animPanel.addControl(btn)
+  }
+  if (all.length >= 2) {
+    const btn = Button.CreateSimpleButton('blend', '⚡ Blend 1+2')
+    btn.paddingTop = '6px'; btn.width = '140px'; btn.height = '34px'
+    btn.color = '#c8a84b'; btn.background = '#1e2330'; btn.cornerRadius = 4; btn.thickness = 1
+    btn.hoverCursor = 'pointer'
+    btn.onPointerDownObservable.add(() => playBlend(all[0], all[1]))
+    animPanel.addControl(btn)
+  }
+}
+
+// ── Load character ───────────────────────────────────────────────────────
+async function loadChar(file: string, label: string) {
+  current?.stop(); current = null
+  charMeshes.forEach(m => m.dispose()); charMeshes = []
+  embedded.forEach(g => g.dispose()); embedded = []
+  retargeted.forEach(g => g.dispose()); retargeted = []
+  skeleton = null
+
+  setProgress(20, `Loading ${label}…`)
+
+  try {
+    const before = scene.animationGroups.length
+    const result = await SceneLoader.ImportMeshAsync('', `${R2_RTS}/`, file, scene)
+    charMeshes = result.meshes
+    skeleton   = result.skeletons[0] ?? null
+    embedded   = scene.animationGroups.slice(before)
+    embedded.forEach(g => g.stop())
+
+    const root = charMeshes[0]
+    autoNormalizeCharacter(root)
+    root.position.y = 0
+
+    shadows.addShadowCaster(root, true)
+    charMeshes.forEach(m => { m.receiveShadows = true })
+
+    const bounds = root.getHierarchyBoundingVectors()
+    const height = bounds.max.y - bounds.min.y
+    camera.setTarget(new Vector3(0, height * 0.5, 0))
+    camera.radius = Math.max(3, height * 1.8)
+
+    setProgress(60, 'Retargeting animations…')
+    if (skeleton && ualLoaded && ualSrcGroups.length > 0) {
+      retargeted = ualSrcGroups
+        .map(g => retargetAnimationGroup(g, skeleton!, g.name + '_retargeted', scene))
+        .filter(Boolean) as AnimationGroup[]
+    }
+
+    if (embedded.length > 0) play(embedded[0])
+    refreshAnims()
+
+    setProgress(100, 'Ready')
+    hideOverlay()
   } catch (e) {
-    setProgress(100, 'Character load failed')
-    console.error(e); hideOverlay(); return
+    console.error('Character load failed:', e)
+    setProgress(100, `Failed: ${label}`)
+    hideOverlay()
   }
+}
 
-  charMeshes = charResult.meshes
-  skeleton   = charResult.skeletons[0] ?? null
-  const root = charMeshes[0]
-
-  // Scale and centre — auto-normalize handles Mixamo FBX cm-scale;
-  // the hardcoded 0.025 fallback is only used if the character is
-  // already in a reasonable range (which it won't be for a raw FBX).
-  autoNormalizeCharacter(root)
-  root.position  = new Vector3(0, 0, 0)
-
-  // Shadows
-  shadows.addShadowCaster(root, true)
-  charMeshes.forEach(m => { m.receiveShadows = true })
-
-  // Default environment
-  const helper = scene.createDefaultEnvironment({ enableGroundShadow: true })
-  helper?.setMainColor(Color3.Gray())
-  if (helper?.ground) helper.ground.position.y += 0.01
-
-  // Focus camera on character
-  camera.setTarget(new Vector3(0, 1, 0))
-
-  setProgress(30, 'Loading animations…')
-
-  // Load animations sequentially
-  for (let i = 0; i < ANIM_DEFS.length; i++) {
-    const def = ANIM_DEFS[i]
-    setProgress(30 + (i / ANIM_DEFS.length) * 60, `Loading ${def.label}…`)
-    try {
-      const res = await SceneLoader.ImportMeshAsync('', `${R2}/`, def.file, scene)
-      // Get last animation group added
-      const rawGroup = scene.animationGroups[scene.animationGroups.length - 1]
-      // Hide duplicate meshes from animation FBX
-      res.meshes.forEach(m => { if (!charMeshes.includes(m)) m.dispose() })
-
-      if (skeleton && rawGroup) {
-        anims[def.key] = retarget(rawGroup, skeleton, def.key)
-        rawGroup.stop()
-      } else if (rawGroup) {
-        anims[def.key] = rawGroup
-      }
-    } catch (e) { console.warn(`${def.label} anim failed:`, e) }
-  }
-
-  setProgress(95, 'Building UI…')
-
-  // ── BJS GUI buttons ──────────────────────────────────────────────────────
-  const ui      = AdvancedDynamicTexture.CreateFullscreenUI('UI')
-  const panel   = new StackPanel()
-  panel.width   = '140px'
-  panel.fontSize = '13px'
+// ── Build BJS GUI ────────────────────────────────────────────────────────
+function buildUI() {
+  const ui    = AdvancedDynamicTexture.CreateFullscreenUI('UI')
+  const panel = new StackPanel()
+  panel.width   = '150px'
+  panel.fontSize = '12px'
   panel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT
   panel.verticalAlignment   = Control.VERTICAL_ALIGNMENT_CENTER
+  panel.paddingRight = '10px'
   ui.addControl(panel)
 
   const makeBtn = (label: string, onClick: () => void) => {
     const btn = Button.CreateSimpleButton(`btn_${label}`, label)
-    btn.paddingTop = '8px'
-    btn.width      = '120px'
-    btn.height     = '44px'
-    btn.color      = '#d4d8e8'
-    btn.background = '#1e2330'
-    btn.cornerRadius = 4
-    btn.thickness  = 1
+    btn.paddingTop = '6px'; btn.width = '140px'; btn.height = '36px'
+    btn.color = '#d4d8e8'; btn.background = '#1e2330'; btn.cornerRadius = 4; btn.thickness = 1
     btn.hoverCursor = 'pointer'
     btn.onPointerEnterObservable.add(() => { btn.background = '#c8a84b'; btn.color = '#000' })
     btn.onPointerOutObservable.add(()  => { btn.background = '#1e2330'; btn.color = '#d4d8e8' })
@@ -214,20 +236,37 @@ async function load() {
     return btn
   }
 
-  makeBtn('Idle',       () => play('idle'))
-  makeBtn('Walk',       () => play('walk'))
-  makeBtn('Run',        () => play('run'))
-  makeBtn('Left Turn',  () => play('left'))
-  makeBtn('Right Turn', () => play('right'))
-  makeBtn('Blend Walk+Left', () => playBlend('walk', 'left'))
+  // Character selector
+  for (const ch of CHAR_OPTIONS) {
+    makeBtn(ch.label, () => loadChar(ch.file, ch.label))
+  }
 
-  setProgress(100, 'Ready')
-  hideOverlay()
+  // Separator
+  const sep = Button.CreateSimpleButton('sep', '─── Animations ───')
+  sep.width = '140px'; sep.height = '26px'; sep.paddingTop = '10px'
+  sep.color = '#6b7399'; sep.background = 'transparent'; sep.thickness = 0
+  sep.isHitTestVisible = false
+  panel.addControl(sep)
 
-  // Start with idle
-  play('idle')
+  // Dynamic anim panel
+  animPanel = new StackPanel()
+  animPanel.width = '140px'
+  panel.addControl(animPanel)
 
-  engine.runRenderLoop(() => scene.render())
+  // UAL load button
+  makeBtn('📦 Load UAL Anims', async () => {
+    await ensureUAL()
+    if (skeleton && ualSrcGroups.length > 0 && retargeted.length === 0) {
+      retargeted = ualSrcGroups
+        .map(g => retargetAnimationGroup(g, skeleton!, g.name + '_retargeted', scene))
+        .filter(Boolean) as AnimationGroup[]
+    }
+    refreshAnims()
+  })
 }
 
-load()
+// ── Init ──────────────────────────────────────────────────────────────────
+buildUI()
+setProgress(5, 'Starting…')
+loadChar('King.glb', 'King')
+engine.runRenderLoop(() => scene.render())

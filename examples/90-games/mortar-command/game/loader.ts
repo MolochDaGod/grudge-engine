@@ -1,5 +1,6 @@
 // game/loader.ts — ported from assets-loader.js
 import '@babylonjs/loaders/glTF'
+import '@babylonjs/core/Meshes/Compression/dracoCompression'
 import { AssetsManager }      from '@babylonjs/core/Misc/assetsManager'
 import { MeshBuilder }        from '@babylonjs/core/Meshes/meshBuilder'
 import { BackgroundMaterial } from '@babylonjs/core/Materials/Background/backgroundMaterial'
