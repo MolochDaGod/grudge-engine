@@ -1,7 +1,7 @@
 {
   "name": "grudge-engine",
   "version": "0.1.0",
-  "description": "Grudge Engine — Babylon.js game component library powered by Grudge Studio",
+  "description": "Grudge Engine — Multi-engine game framework (BabylonJS + Three.js + 2D) powered by Grudge Studio",
   "author": "Racalvin The Pirate King",
   "license": "MIT",
   "type": "module",
@@ -48,10 +48,15 @@
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "spectorjs": "^0.9.30",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "three": "^0.170.0",
+    "cannon-es": "^0.20.0",
+    "postprocessing": "^6.38.0",
+    "camera-controls": "^2.9.0"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.28.0",
+    "@types/three": "^0.170.0",
     "@types/howler": "^2.2.12",
     "@types/socket.io-client": "^1.4.36",
     "concurrently": "^9.2.1",
