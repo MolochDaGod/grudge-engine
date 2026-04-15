@@ -1,0 +1,135 @@
+services:
+  nginx_proxy_manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port
+      - '81:81' # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+
+    # Uncomment the next line if you uncomment anything in the section
+    # environment:
+    # Uncomment this if you want to change the location of
+    # the SQLite DB file within the container
+    # DB_SQLITE_FILE: "/data/database.sqlite"
+
+    # Uncomment this if IPv6 is not enabled on your host
+    # DISABLE_IPV6: 'true'
+
+    volumes:
+      - ./data:/data
+      - /etc/letsencrypt:/etc/letsencrypt
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_API_VERSION=1.52
+      - WATCHTOWER_POLL_INTERVAL=300 # Check for updates every 5 minutes
+      - WATCHTOWER_CLEANUP=true # Remove old images after update
+      - WATCHTOWER_LABEL_ENABLE=true # Only watch services with a specific label
+    restart: unless-stopped
+
+  game_test_server:
+    build: .
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - GAME_SCRIPT=defaultScript.ts
+      - GAME_TICKRATE=40 # Higher tickrate for vehicles
+      - NODE_ENV=production
+      - FRONTEND_URL=https://www.notblox.online
+    ports:
+      - '8001:8001'
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  game_obby_parkour:
+    image: ghcr.io/iercann/notblox-game-server:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - GAME_SCRIPT=parkourScript.ts
+      - GAME_TICKRATE=20 # Default tickrate
+      - NODE_ENV=production
+      - FRONTEND_URL=https://www.notblox.online
+    ports:
+      - '8002:8001'
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  game_football:
+    image: ghcr.io/iercann/notblox-game-server:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - GAME_SCRIPT=footballScript.ts
+      - GAME_TICKRATE=20
+      - NODE_ENV=production
+      - FRONTEND_URL=https://www.notblox.online
+    ports:
+      - '8003:8001'
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  game_pet_simulator:
+    image: ghcr.io/iercann/notblox-game-server:latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - GAME_SCRIPT=petSimulatorScript.ts
+      - GAME_TICKRATE=20
+      - NODE_ENV=production
+      - FRONTEND_URL=https://www.notblox.online
+    ports:
+      - '8004:8001'
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  monitor-logs:
+    build: ./monitor
+    environment:
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DOCKER_GATEWAY=https://172.17.0.1
+      - CHECK_INTERVAL=10000
+    restart: 'no'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
